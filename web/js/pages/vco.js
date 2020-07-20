@@ -30,8 +30,8 @@ $(document).ready(function (e) {
 
     
     var recibiendo = false;
-    var width = 200;
-    var height = 180;
+    var width = 500;
+    var height = 500;
     var tipo = localStorage.getItem('tipo');
     var consultor = localStorage.getItem('consultor');
     var participante = localStorage.getItem('participante');
