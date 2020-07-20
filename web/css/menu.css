@@ -1,0 +1,93 @@
+.jumbotron{
+    text-align:center;
+}
+#customBtn {
+    display: inline-block;
+    font-size: 20pt;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+#customBtn:hover {
+    cursor: pointer;
+}
+span.buttonText {
+    display: inline-block;
+    border-radius: 7px;
+    vertical-align: middle;
+    font-weight: bold;
+    background:white;
+    color:gray;
+    border:1px silver solid;
+    /* Use the Roboto font that is loaded in the <head> */
+    font-family: 'Roboto', sans-serif;
+}
+.header{
+    height:40px;
+    margin-top:5px;
+}
+.container-fluid{
+}
+.menuconectados{
+    position:fixed;
+    right:500px;
+    top:-1px;
+    background:#FAFAFA;
+    padding:0px 10px 5px 10px;
+    border:1px solid silver;
+    border-radius:0 0 10px 10px;
+    -webkit-transition: -webkit-transform 0.5s ease-in; /* Changed here */ 
+    -moz-transition: -moz-transform 0.5s ease-in;
+    -o-transition: -o-transform 0.5s ease-in;
+    transition: transform 0.5s ease-in;
+}
+.flechaabajo:hover{
+  cursor:pointer;
+}
+.menu{
+    width:300px;
+    background:#FAFAFA;
+    padding-bottom: 20px;
+    position:fixed;
+    top:200px;
+    right:0px;
+    border:1px solid silver;
+    border-radius:10px 0 0 10px;
+    -webkit-transition: -webkit-transform 1s ease-in; /* Changed here */ 
+    -moz-transition: -moz-transform 1s ease-in;
+    -o-transition: -o-transform 1s ease-in;
+    transition: transform 1s ease-in;
+    
+}
+.flecha:hover{
+    cursor:pointer;
+}
+.flecha{
+    margin-left:-10px;
+}
+.header-menu{
+    font-family:verdana;
+    font-size:13pt;
+    margin-top:5px;
+    margin-left: -30px;
+}
+.boton{
+    font-family:verdana;
+    font-size:10pt;
+    width:240px;
+}
+.row-boton{
+    margin-bottom: 5px;
+}
+.row{
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+.fondo{
+    width:100%;
+}
+#page{
+    font-family: Helvetica,Arial, sans-serif;
+}
+.menu{
+    font-family: Helvetica,Arial, sans-serif;
+}
