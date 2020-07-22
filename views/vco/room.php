@@ -112,15 +112,80 @@ $(document).ready(function (e) {
         audio: 50
     };
 
-    var videoConstraints = {
-        mandatory: {
-            minWidth: width,
-            maxWidth: width,
-            minHeight: height,
-            maxHeight: height
-        },
-        optional: []
+
+
+
+
+
+    var bitrates = 512;
+    var resolutions = 'Ultra-HD';
+    var videoConstraints = {};
+
+    if (resolutions == 'HD') {
+        videoConstraints = {
+            width: {
+                ideal: 1280
+            },
+            height: {
+                ideal: 720
+            },
+            frameRate: 30
+        };
+    }
+
+    if (resolutions == 'Ultra-HD') {
+        videoConstraints = {
+            width: {
+                ideal: 1920
+            },
+            height: {
+                ideal: 1080
+            },
+            frameRate: 30
+        };
+    }
+
+    connection.mediaConstraints = {
+        video: videoConstraints,
+        audio: true
     };
+
+    var CodecsHandler = connection.CodecsHandler;
+
+    connection.processSdp = function(sdp) {
+        var codecs = 'vp8';
+
+        if (resolutions == 'HD') {
+            sdp = CodecsHandler.setApplicationSpecificBandwidth(sdp, {
+                audio: 128,
+                video: bitrates,
+                screen: bitrates
+            });
+
+            sdp = CodecsHandler.setVideoBitrates(sdp, {
+                min: bitrates * 8 * 1024,
+                max: bitrates * 8 * 1024,
+            });
+        }
+
+        if (resolutions == 'Ultra-HD') {
+            sdp = CodecsHandler.setApplicationSpecificBandwidth(sdp, {
+                audio: 128,
+                video: bitrates,
+                screen: bitrates
+            });
+
+            sdp = CodecsHandler.setVideoBitrates(sdp, {
+                min: bitrates * 8 * 1024,
+                max: bitrates * 8 * 1024,
+            });
+        }
+
+        return sdp;
+    };
+
+
+
 
     connection.socketURL = server;
     connection.socketMessageEvent = 'video-conference-demo';
@@ -150,7 +215,7 @@ $(document).ready(function (e) {
                 if (isRoomExist === true) {
                     connection.closeSocket();
                 } 
-                connection.openOrJoin(roomid);
+                connection.open(roomid);
             });
         }catch(ex){
             alert('Error, por favor reintente.');
@@ -159,7 +224,7 @@ $(document).ready(function (e) {
     }
     if(tipo == 'participante'){
         connection.userid = participante;
-        connection.openOrJoin(reunion);
+        connection.join(reunion);
     }
 //END ABRIR O UNIRSE A REUNIÓN
 
