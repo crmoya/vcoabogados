@@ -36,7 +36,6 @@ class Reunion extends \yii\db\ActiveRecord
             [['abogado_id', 'participante_id', 'fecha', 'activa'], 'required'],
             [['abogado_id', 'participante_id', 'activa'], 'integer'],
             [['fecha'], 'safe'],
-            [['participante_id', 'abogado_id'], 'unique', 'targetAttribute' => ['participante_id', 'abogado_id']],
             [['abogado_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['abogado_id' => 'id']],
             [['participante_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['participante_id' => 'id']],
         ];

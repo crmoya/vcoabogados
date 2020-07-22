@@ -1,3 +1,7 @@
+<?php
+
+use yii\helpers\Html;
+?>
 <style>
     .media-box video {
         height: 100% !important;
@@ -43,6 +47,17 @@
     </div>
     <div id="chat" class="col-md-3">
 
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <?php 
+        $mensaje = "SALIR DE LA REUNIÓN";
+        if(Yii::$app->user->can("abogado")){
+            $mensaje = "TERMINAR LA REUNIÓN Y SALIR";
+        }
+        echo Html::a($mensaje, ['/vco/close'], ['class'=>'btn btn-danger']);
+        ?>
     </div>
 </div>
 <link rel="stylesheet" href="<?= Yii::getAlias('@web'); ?>/css/getHTMLMediaElement.css">

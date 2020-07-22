@@ -38,7 +38,11 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Entrar a VCO', 'url' => ['/vco/waiting-room']],
+            [
+                'label' => 'Entrar a VCO', 
+                'url' => ['/vco/waiting-room'],
+                'visible' => !Yii::$app->user->isGuest
+            ],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
             ) : (

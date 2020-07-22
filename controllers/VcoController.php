@@ -41,13 +41,34 @@ class VcoController extends Controller
         ];
     }
 
+    public function actionClose(){
+        //si se sale el abogado, se termina la reunión
+        if(Yii::$app->user->can("abogado")){
+            $reunion = Reunion::find()->where(['abogado_id'=>Yii::$app->user->identity->id,'activa'=>1])->one();
+            if(isset($reunion)){
+                $reunion->activa = 0;
+                $reunion->save();
+            }
+        }
+        $this->redirect(["site/index"]);
+    }
+
     public function actionWaitingRoom()
     {
         if(Yii::$app->user->can("abogado")){
+            $reunion = Reunion::find()->where(['abogado_id'=>Yii::$app->user->identity->id,'activa'=>1])->one();
+            //si existe una reunión activa para este abogado, debe redireccionar de inmediato a la VCO
+            if(isset($reunion)){
+                return $this->render('room', [
+                    'tipo' => "abogado",
+                    'reunion' => $reunion,
+                ]);
+            }
+            
+            
             $model = new WaitingRoomForm();
             if ($model->load(Yii::$app->request->post())) {
                 $model->abogado = Yii::$app->user->identity->id;
-                $reunion = Reunion::find()->where(['abogado_id'=>Yii::$app->user->identity->id,'activa'=>1])->one();
                 if(!isset($reunion)){
                     $reunion = new Reunion();
                     $reunion->abogado_id = $model->abogado;
@@ -56,10 +77,8 @@ class VcoController extends Controller
                     $reunion->activa = 1;
                     $reunion->save();
                 }
-
-                $tipo = "abogado";
                 return $this->render('room', [
-                    'tipo' => $tipo,
+                    'tipo' => "abogado",
                     'reunion' => $reunion,
                 ]);
                 return $this->render('vco/room',['reunion'=>$reunion]);
@@ -84,6 +103,7 @@ class VcoController extends Controller
             }
             return $this->render('error');
         }
+        $this->redirect(["site/index"]);
     }
 
 }

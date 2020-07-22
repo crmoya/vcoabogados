@@ -9,6 +9,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\Reunion;
 
 class SiteController extends Controller
 {
@@ -112,6 +113,16 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
+        //si se desloguea el abogado se inactiva la reunión que tuviera activa
+        if(Yii::$app->user->can("abogado")){
+            $reunion = Reunion::find()->where(['abogado_id'=>Yii::$app->user->identity->id,'activa'=>1])->one();
+            if(isset($reunion)){
+                $reunion->activa = 0;
+                $reunion->save();
+            }
+        }
+
+
         Yii::$app->user->logout();
 
         return $this->goHome();
