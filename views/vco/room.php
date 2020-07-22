@@ -1,6 +1,8 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
+
 ?>
 <style>
     .media-box video {
@@ -36,17 +38,49 @@ use yii\helpers\Html;
     }
 
     #chat {
-        height: 500px;
-        background: yellow;
+        background-color: #E2E2E2;
+        border: solid 1px silver;
+        border-radius: 3px;
+    }
+    .titulo-chat{
+        background-color: silver;
+        border-bottom:1px solid gray;
+    }
+    .fila-envio, #salir{
+        margin-top:10px;
+    }
+    #texto{
+        font-size: 8pt;
+        height: 35px;
+        width: 100%;
+    }
+    .linea-mensaje{
+        text-align: left;
+        margin-left: 5px !important;
+    }
+    #mensajes{
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 </style>
+
+
+
+
+
+
 <div class="row">
     <div id="row-participantes" class="col-md-9">
         <div id="participantes">
         </div>
     </div>
     <div id="chat" class="col-md-3">
+        <div class="row">
+            <p class="titulo-chat">Apuntes de la reunión</p>
+        </div>
+        <div class="row" id="mensajes">
 
+        </div>
     </div>
 </div>
 <div class="row">
@@ -56,10 +90,28 @@ use yii\helpers\Html;
         if(Yii::$app->user->can("abogado")){
             $mensaje = "TERMINAR LA REUNIÓN Y SALIR";
         }
-        echo Html::a($mensaje, ['/vco/close'], ['class'=>'btn btn-danger']);
+        echo Html::a($mensaje, ['/vco/close'], ['class'=>'btn btn-danger','id'=>"salir"]);
         ?>
     </div>
+    <div class="col-md-6"></div>
+    <div class="col-md-3">
+        <div class="row">
+            <div class="fila-envio col-sm-8">
+                <input type="text" id="texto"/>
+            </div>
+            <div class="col-sm-4">
+            <div id="enviar" class="fila-envio btn btn-success">Enviar</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
+
+
+
+
+
 <link rel="stylesheet" href="<?= Yii::getAlias('@web'); ?>/css/getHTMLMediaElement.css">
 <script src="<?= Yii::getAlias('@web'); ?>/js/RTCMultiConnection.js"></script>
 <script src="https://vast-hamlet-25601.herokuapp.com/socket.io/socket.io.js"></script>
@@ -74,6 +126,8 @@ use yii\helpers\Html;
 
 $abogado = $reunion->abogado->username;
 $participante = $reunion->participante->username;
+$url = Url::to(["vco/disconnected"]);
+$urlMensaje = Url::to(["vco/message"]);
 
 $script = <<< JS
 
@@ -81,13 +135,14 @@ var transmitiendo = true;
 var miStream = null;
 
 $(document).ready(function (e) {
-  
+    
     var conectados = 0;
     var server = 'https://vast-hamlet-25601.herokuapp.com/';
         
 //VARIABLES QUE SE USARÁN
 
     var alto = $(window).height() - 200;
+    $('#mensajes').height(alto-80);
     var ancho = $("#row-participantes").width() / 2;
 
     if(alto > ancho){
@@ -103,6 +158,7 @@ $(document).ready(function (e) {
     var reunion = "$abogado";
     var abogado = "$abogado";
     var participante = "$participante";
+    var reunion_id = '$reunion->id';
     
     window.enableAdapter = true; // enable adapter.js
     
@@ -111,11 +167,6 @@ $(document).ready(function (e) {
     connection.bandwidth = {
         audio: 50
     };
-
-
-
-
-
 
     var bitrates = 512;
     var resolutions = 'Ultra-HD';
@@ -229,28 +280,16 @@ $(document).ready(function (e) {
 //END ABRIR O UNIRSE A REUNIÓN
 
 
-//DESCONEXIÓN DEL CONSULTOR
-    if(tipo == 'abogado')
-    {
-        connection.socket.on('disconnect',function(event){
-            //setEstado(false);
-        });
-        
-    }
-  
-    if(tipo == 'participante'){
-        connection.onUserStatusChanged = function(event) {
-            var isOffline = event.status === 'offline';
-            if(event.userid == abogado && isOffline){
-                window.location = 'index.php';
-            }
-        };
-    }
+//DESCONEXIÓN
+    connection.onUserStatusChanged = function(event) {
+        var isOffline = event.status === 'offline';
+        if(isOffline){
+            window.location = '$url';
+        }
+    };
     
-//END DESCONEXIÓN DEL CONSULTOR
+//END DESCONEXIÓN
 
-
-//END DESCONEXIÓN DE ALGÚN PARTICIPANTE
 
 //STREAMING
     
@@ -299,6 +338,58 @@ $(document).ready(function (e) {
         }
     };
 //END STREAMING
+
+
+//ENVÍO DE MENSAJES AL CHAT
+connection.connectSocket(function(socket) {
+    $('#enviar').click(function(e){
+        var mensaje = { 
+            remitente: connection.userid, 
+            texto: $('#texto').val(),
+            reunion: reunion_id,
+        };
+        imprimirMensaje(mensaje);
+        $('#texto').val('');
+        connection.socket.emit(connection.socketCustomEvent, mensaje);
+        mensajeBD(mensaje);
+    });
+    connection.socket.on(connection.socketCustomEvent, function(event) {
+        imprimirMensaje({remitente: event.remitente, texto: event.texto, reunion: reunion_id});
+    });
+});
+    
+//END ENVÍO DE MENSAJES AL CHAT
+
+//GUARDAR MENSAJE EN BD
+function mensajeBD(mensaje){
+    $.ajax({
+        url: '$urlMensaje',
+        data: {
+            texto: mensaje.texto,
+            remitente: mensaje.remitente,
+            reunion_id: mensaje.reunion,
+        },
+        type: "post",
+        success: function(respuesta) {
+            console.log("mensaje añadido a la BD");
+        },
+        error: function() {
+            console.log("mensaje no se pudo añadir a la BD");
+        }
+    });
+}
+//GUARDAR MENSAJE EN BD
+
+//IMPRIMIR EL MENSAJE EN EL CHAT
+function imprimirMensaje(mensaje){
+    var fila = 
+        "<div class='row linea-mensaje'>" +
+            "<b>" + mensaje.remitente + "</b>: " + mensaje.texto + 
+        "</div>";
+
+    $('#mensajes').append(fila);
+}
+//END IMPRIMIR EL MENSAJE EN EL CHAT
 
 
 });

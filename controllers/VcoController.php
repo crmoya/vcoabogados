@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
+use app\models\Mensaje;
 use app\models\Reunion;
+use app\models\User;
 use app\models\WaitingRoomForm;
 use Yii;
 use yii\filters\AccessControl;
@@ -51,6 +53,27 @@ class VcoController extends Controller
             }
         }
         $this->redirect(["site/index"]);
+    }
+
+    public function actionMessage(){
+        $texto = \Yii::$app->request->post('texto');
+        $remitente = \Yii::$app->request->post('remitente');
+        $reunion_id = \Yii::$app->request->post('reunion_id');
+        if(strlen($texto)>1){
+            $usuario = User::find()->where(['username'=>$remitente])->one();
+            if(isset($usuario)){
+                $mensaje = new Mensaje();
+                $mensaje->reunion_id = $reunion_id;
+                $mensaje->user_id = $usuario->id;
+                $mensaje->fecha = date("Y-m-d H:i:s");
+                $mensaje->mensaje = $texto;
+                $mensaje->save();
+            }
+        }
+    }
+
+    public function actionDisconnected(){
+        return $this->render('disconnected');
     }
 
     public function actionWaitingRoom()

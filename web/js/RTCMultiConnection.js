@@ -5334,13 +5334,9 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 console.error(error);
                 swal(
                     'Problemas con la visualización de la cámara',
-                    'Se reintentará en 3 segundos... Si el problema persiste, por favor reinicia tu computador.',
+                    'Por favor, verifica que has dado permisos al navegador para visualizar la cámara y recarga la página.',
                     'error'
-                )
-                setTimeout(function () {
-                    location.reload();
-                },3000);
-                
+                );
             }
         };
 
