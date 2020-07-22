@@ -150,7 +150,7 @@ $(document).ready(function (e) {
                 if (isRoomExist === true) {
                     connection.closeSocket();
                 } 
-                connection.open(roomid);
+                connection.openOrJoin(roomid);
             });
         }catch(ex){
             alert('Error, por favor reintente.');
@@ -159,7 +159,7 @@ $(document).ready(function (e) {
     }
     if(tipo == 'participante'){
         connection.userid = participante;
-        connection.join(reunion);
+        connection.openOrJoin(reunion);
     }
 //END ABRIR O UNIRSE A REUNIÓN
 
