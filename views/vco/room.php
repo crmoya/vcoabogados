@@ -97,7 +97,7 @@ use yii\helpers\Url;
     <div class="col-md-3">
         <div class="row">
             <div class="fila-envio col-sm-8">
-                <input type="text" id="texto"/>
+                <input type="text" id="texto" placeholder="Escribir acá..."/>
             </div>
             <div class="col-sm-4">
             <div id="enviar" class="fila-envio btn btn-success">Enviar</div>
