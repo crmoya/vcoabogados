@@ -49,6 +49,7 @@ function getHTMLMediaElement(mediaElement, config) {
         mediaControls.appendChild(muteAudio);
 
         muteAudio.onclick = function() {
+            
             if (muteAudio.className.indexOf('unmute-audio') != -1) {
                 muteAudio.className = muteAudio.className.replace('unmute-audio selected', 'mute-audio');
                 mediaElement.muted = false;

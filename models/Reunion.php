@@ -7,16 +7,20 @@ use Yii;
 /**
  * This is the model class for table "reunion".
  *
- * @property integer $id
- * @property string $consultor
- * @property integer $consultores_id
+ * @property int $id
+ * @property int $abogado_id
+ * @property int $participante_id
+ * @property string $fecha
+ * @property int $activa
  *
- * @property Consultores $consultores
+ * @property Mensaje[] $mensajes
+ * @property User $abogado
+ * @property User $participante
  */
 class Reunion extends \yii\db\ActiveRecord
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function tableName()
     {
@@ -24,35 +28,61 @@ class Reunion extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['consultor', 'consultores_id'], 'required'],
-            [['consultores_id'], 'integer'],
-            [['consultor'], 'string', 'max' => 100],
-            [['consultores_id'], 'exist', 'skipOnError' => true, 'targetClass' => Consultores::className(), 'targetAttribute' => ['consultores_id' => 'id']],
+            [['abogado_id', 'participante_id', 'fecha', 'activa'], 'required'],
+            [['abogado_id', 'participante_id', 'activa'], 'integer'],
+            [['fecha'], 'safe'],
+            [['participante_id', 'abogado_id'], 'unique', 'targetAttribute' => ['participante_id', 'abogado_id']],
+            [['abogado_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['abogado_id' => 'id']],
+            [['participante_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['participante_id' => 'id']],
         ];
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function attributeLabels()
     {
         return [
             'id' => 'ID',
-            'consultor' => 'Consultor',
-            'consultores_id' => 'Consultores ID',
+            'abogado_id' => 'Abogado ID',
+            'participante_id' => 'Participante ID',
+            'fecha' => 'Fecha',
+            'activa' => 'Activa',
         ];
     }
 
     /**
+     * Gets query for [[Mensajes]].
+     *
      * @return \yii\db\ActiveQuery
      */
-    public function getConsultores()
+    public function getMensajes()
     {
-        return $this->hasOne(Consultores::className(), ['id' => 'consultores_id']);
+        return $this->hasMany(Mensaje::className(), ['reunion_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Abogado]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAbogado()
+    {
+        return $this->hasOne(User::className(), ['id' => 'abogado_id']);
+    }
+
+    /**
+     * Gets query for [[Participante]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParticipante()
+    {
+        return $this->hasOne(User::className(), ['id' => 'participante_id']);
     }
 }

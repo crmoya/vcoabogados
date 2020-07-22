@@ -1,18 +1,24 @@
 <?php
 
-$params = require(__DIR__ . '/params.php');
-$db = require(__DIR__ . '/db.php');
+$params = require __DIR__ . '/params.php';
+$db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
-    'language'=>'es',
-    'name'=>'WebVCO Guiresse',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'name' => "VCO",
+    'aliases' => [
+        '@bower' => '@vendor/bower-asset',
+        '@npm'   => '@vendor/npm-asset',
+    ],
     'components' => [
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'cwbVCGG_uCFxmq_SKamBFqQJpwyuxR9q',
+            'cookieValidationKey' => '_vrKfiVKhpWztzAoAwPJPUNUgrcb3zhh',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -26,15 +32,10 @@ $config = [
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
-            'transport' => [
-                'class' => 'Swift_SmtpTransport',
-                'host' => 'mail.mvs.cl',
-                'username' => 'contacto@mvs.cl',
-                'password' => 'C0nt4ct0',
-                'port' => '25',
-                //'encryption' => 'ssl',
-            ],
-            'useFileTransport' => false,
+            // send all mails to a file by default. You have to set
+            // 'useFileTransport' to false and configure a transport
+            // for the mailer to send real emails.
+            'useFileTransport' => true,
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -46,14 +47,12 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
     ],
     'params' => $params,
 ];

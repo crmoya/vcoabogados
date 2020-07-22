@@ -9,14 +9,11 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
-use app\models\Tools;
-use app\models\InvitarForm;
-use app\models\Invitados;
 
 class SiteController extends Controller
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function behaviors()
     {
@@ -26,9 +23,9 @@ class SiteController extends Controller
                 'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['cargarusuario','cerrar','limpiarinvitados'],
+                        'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['*'],
+                        'roles' => ['@'],
                     ],
                 ],
             ],
@@ -41,16 +38,31 @@ class SiteController extends Controller
         ];
     }
 
-    public function actionVcoAbogado(){
-        return $this->render('vco-abogado');
-    }
+    /*
+    public function actionInit()
+    {
+        $auth = Yii::$app->authManager;
 
-    public function actionVcoCliente(){
-        return $this->render('vco-cliente');
+        $room = $auth->createPermission('room');
+        $room->description = 'Ingresar a VCO';
+        $auth->add($room);
+
+        $abogado = $auth->createRole('abogado');
+        $auth->add($abogado);
+        $auth->addChild($abogado, $room);
+
+        $participante = $auth->createRole('participante');
+        $auth->add($participante);
+        $auth->addChild($participante, $room);
+
+        $auth->assign($participante, 2);
+        $auth->assign($abogado, 1);
     }
-    
+    */
+
+
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function actions()
     {
@@ -64,8 +76,6 @@ class SiteController extends Controller
             ],
         ];
     }
-    
-    
 
     /**
      * Displays homepage.
@@ -74,8 +84,6 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        //Tools::validarInvitado();
-        
         return $this->render('index');
     }
 
@@ -86,17 +94,15 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         $model = new LoginForm();
+        $model->rememberMe = FALSE;
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->redirect(['site/index']);
+        } else {
+            return $this->render('login', [
+                        'model' => $model,
+            ]);
         }
-        return $this->render('login', [
-            'model' => $model,
-        ]);
     }
 
     /**
