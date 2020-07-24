@@ -43,8 +43,9 @@ use yii\helpers\Url;
         border-radius: 3px;
     }
     .titulo-chat{
-        background-color: silver;
+        background-color: white;
         border-bottom:1px solid gray;
+        font-weight: bold;
     }
     .fila-envio, #salir{
         margin-top:10px;
@@ -62,6 +63,13 @@ use yii\helpers\Url;
         overflow-y: auto;
         overflow-x: hidden;
     }
+    .exportar{
+        width:20px;
+        height:20px;
+    }
+    .exportar:hover{
+        cursor:pointer;
+    }
 </style>
 
 
@@ -75,8 +83,13 @@ use yii\helpers\Url;
         </div>
     </div>
     <div id="chat" class="col-md-3">
-        <div class="row">
-            <p class="titulo-chat">Apuntes de la reunión</p>
+        <div class="row titulo-chat">
+            <div class="col-md-9">
+                Apuntes de la reunión
+            </div>
+            <div class="col-md-3" style="text-align:right;">
+                <a><img class="exportar" src="<?=Yii::getAlias('@web')."/img/download.png"?>"></a>
+            </div>
         </div>
         <div class="row" id="mensajes">
 
@@ -121,6 +134,10 @@ use yii\helpers\Url;
 <script src="<?= Yii::getAlias('@web'); ?>/js/md5.min.js"></script>
 <script src="https://unpkg.com/sweetalert2@7.0.8/dist/sweetalert2.all.js"></script>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js" integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/" crossorigin="anonymous"></script>
+
+
 <?php
 
 
@@ -128,6 +145,7 @@ $abogado = $reunion->abogado->username;
 $participante = $reunion->participante->username;
 $url = Url::to(["vco/disconnected"]);
 $urlMensaje = Url::to(["vco/message"]);
+$urlLoadMensajes = Url::to(["vco/load"]);
 
 $script = <<< JS
 
@@ -159,6 +177,7 @@ $(document).ready(function (e) {
     var abogado = "$abogado";
     var participante = "$participante";
     var reunion_id = '$reunion->id';
+    var fecha = '$reunion->fecha';
     
     window.enableAdapter = true; // enable adapter.js
     
@@ -390,6 +409,64 @@ function imprimirMensaje(mensaje){
     $('#mensajes').append(fila);
 }
 //END IMPRIMIR EL MENSAJE EN EL CHAT
+
+$('.exportar').click(function(e){
+    exportarMensajes();
+});
+
+loadMensajes();
+
+//MOSTRAR MENSAJES ANTERIORES DE LA REUNIÓN
+function loadMensajes(){
+    $.ajax({
+        url: '$urlLoadMensajes',
+        data: {
+            reunion_id: reunion_id,
+        },
+        type: "post",
+        success: function(respuesta) {
+            var mensajes = respuesta;
+            for(var i = 0; i < mensajes.length; i++){
+                imprimirMensaje({ remitente: mensajes[i].user, texto: mensajes[i].mensaje});
+            }
+        },
+        error: function() {
+            console.log("mensajes no se pudieron cargar BD");
+        }
+    });
+}
+//END MOSTRAR MENSAJES ANTERIORES DE LA REUNIÓN
+
+//EXPORTAR MENSAJES A ARCHIVO DE TEXTO
+function exportarMensajes(){
+    $.ajax({
+        url: '$urlLoadMensajes',
+        data: {
+            reunion_id: reunion_id,
+        },
+        type: "post",
+        success: function(respuesta) {
+            var mensajes = respuesta;
+            var doc = new jsPDF();
+            doc.setFont("helvetica");
+            doc.setFontSize(10);
+            doc.setFontType("bold");
+            doc.text("Apuntes de la Reunión entre " + abogado + " y " + participante + " del " + fecha, 10, 10);
+            doc.setFontType("normal");
+            for(var i = 0; i < mensajes.length; i++){
+                doc.text(mensajes[i].user + ": " + mensajes[i].mensaje, 10, 5 * (i + 4));
+            }
+            doc.save('Reunión del ' + fecha + '.pdf');
+            
+
+        },
+        error: function() {
+            console.log("mensajes no se pudieron cargar BD");
+        }
+    });
+}
+//END EXPORTAR MENSAJES A ARCHIVO DE TEXTO
+
 
 
 });

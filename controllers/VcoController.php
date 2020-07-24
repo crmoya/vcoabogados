@@ -72,6 +72,17 @@ class VcoController extends Controller
         }
     }
 
+    public function actionLoad(){
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $reunion_id = \Yii::$app->request->post('reunion_id');
+        $dev = [];
+        $mensajes = Mensaje::find()->where(['reunion_id' => $reunion_id])->orderBy(['fecha'=>SORT_DESC])->all();
+        foreach($mensajes as $mensaje){
+            $dev[] = ['user'=>$mensaje->user->username, 'mensaje'=>$mensaje->mensaje];
+        }
+        return $dev; 
+    }
+
     public function actionDisconnected(){
         return $this->render('disconnected');
     }
